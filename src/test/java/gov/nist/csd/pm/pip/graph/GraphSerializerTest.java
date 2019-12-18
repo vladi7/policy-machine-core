@@ -78,7 +78,7 @@ class GraphSerializerTest {
                         "assign OA:oa1 test PC:pc1\n" +
                         "\n" +
                         "# associations\n" +
-                        "assoc UA:ua1 OA:oa1 test [read, write]";
+                        "assoc UA:ua1 OA:oa1 test [read, assign to, deassign from]";
         Graph graph = Graph.deserialize(new MemGraph(), str);
         Collection<Node> nodes = graph.getNodes();
         for (Node node : nodes) {
@@ -105,7 +105,7 @@ class GraphSerializerTest {
                     Long tID = sourceAssociations.keySet().iterator().next();
                     Node tN = graph.getNode(tID);
                     assertEquals("oa1 test", tN.getName());
-                    assertEquals(new HashSet<>(Arrays.asList("read", "write")), sourceAssociations.get(tID));
+                    assertEquals(new HashSet<>(Arrays.asList("read", "assign to", "deassign from")), sourceAssociations.get(tID));
                     break;
                 case "o1":
                     assertEquals(O, node.getType());

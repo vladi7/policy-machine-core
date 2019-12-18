@@ -310,13 +310,8 @@ public interface Graph {
                     }
                     long targetID = ids.get(name);
 
-                    i++;
-                    String opsStr = "";
-                    for (int j = i; j < pieces.length; j++) {
-                        opsStr += pieces[j].replaceAll("\\[", "").replaceAll("]", "")
-                                .trim();
-                    }
-                    String[] ops = opsStr.split(",");
+                    String opsStr = line.substring(line.indexOf("[")+1, line.lastIndexOf("]"));
+                    String[] ops = opsStr.split("(,\\s+)");
                     graph.associate(uaID, targetID, new HashSet<>(Arrays.asList(ops)));
                     break;
             }
