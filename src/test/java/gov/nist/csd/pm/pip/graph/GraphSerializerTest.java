@@ -56,7 +56,7 @@ class GraphSerializerTest {
                 "assign OA:oa1 PC:pc1\n" +
                 "\n" +
                 "# associations\n" +
-                "assoc UA:ua1 OA:oa1 read, write";
+                "assoc UA:ua1 OA:oa1 [read, write]";
         assertEquals(expected.replaceAll(" ", ""), actual.trim().replaceAll(" ", ""));
 
     }
