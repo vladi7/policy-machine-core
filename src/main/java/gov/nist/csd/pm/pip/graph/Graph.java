@@ -200,8 +200,7 @@ public interface Graph {
                 s += "assoc " +
                         node.getType() + ":" + node.getName() + " " +
                         targetNode.getType() + ":" + targetNode.getName() + " " +
-                        assocs.get(targetID).toString()
-                                .replaceAll("\\[", "").replaceAll("]", "") + "\n";
+                        assocs.get(targetID).toString() + "\n";
             }
         }
 
