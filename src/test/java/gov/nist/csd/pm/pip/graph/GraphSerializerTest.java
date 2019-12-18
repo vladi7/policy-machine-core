@@ -68,17 +68,17 @@ class GraphSerializerTest {
                         "node U u1 {k1=v1,k2=v2}\n" +
                         "node O o1 \n" +
                         "node UA ua1 \n" +
-                        "node OA oa1 \n" +
+                        "node OA oa1 test \n" +
                         "node PC pc1 \n" +
                         "\n" +
                         "# assignments\n" +
                         "assign U:u1 UA:ua1\n" +
-                        "assign O:o1 OA:oa1\n" +
+                        "assign O:o1 OA:oa1 test\n" +
                         "assign UA:ua1 PC:pc1\n" +
-                        "assign OA:oa1 PC:pc1\n" +
+                        "assign OA:oa1 test PC:pc1\n" +
                         "\n" +
                         "# associations\n" +
-                        "assoc UA:ua1 OA:oa1 [read, write]";
+                        "assoc UA:ua1 OA:oa1 test [read, write]";
         Graph graph = Graph.deserialize(new MemGraph(), str);
         Collection<Node> nodes = graph.getNodes();
         for (Node node : nodes) {
@@ -104,8 +104,8 @@ class GraphSerializerTest {
                     assertEquals(1, sourceAssociations.size());
                     Long tID = sourceAssociations.keySet().iterator().next();
                     Node tN = graph.getNode(tID);
-                    assertEquals("oa1", tN.getName());
-                    assertTrue(sourceAssociations.get(tID).containsAll(Arrays.asList("read", "write")));
+                    assertEquals("oa1 test", tN.getName());
+                    assertEquals(new HashSet<>(Arrays.asList("read", "write")), sourceAssociations.get(tID));
                     break;
                 case "o1":
                     assertEquals(O, node.getType());
@@ -113,9 +113,9 @@ class GraphSerializerTest {
                     assertEquals(1, parents.size());
                     p = parents.iterator().next();
                     pN = graph.getNode(p);
-                    assertEquals("oa1", pN.getName());
+                    assertEquals("oa1 test", pN.getName());
                     break;
-                case "oa1":
+                case "oa1 test":
                     assertEquals(OA, node.getType());
                     parents = graph.getParents(node.getID());
                     assertEquals(1, parents.size());

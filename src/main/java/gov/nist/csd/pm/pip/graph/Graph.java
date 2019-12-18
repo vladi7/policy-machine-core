@@ -218,7 +218,6 @@ public interface Graph {
                 continue;
             }
 
-
             String[] pieces = line.split(" ");
             switch (pieces[0]) {
                 case "node":
@@ -227,11 +226,22 @@ public interface Graph {
                     }
                     // node <type> <name> <props>
                     String type = pieces[1];
+
                     String name = pieces[2];
+                    int i;
+                    for (i = 3; i < pieces.length; i++) {
+                        String piece = pieces[i];
+                        if (piece.startsWith("{")) {
+                            break;
+                        }
+
+                        name += " " + piece;
+                    }
+
                     String props = "";
                     Map<String, String> propsMap = new HashMap<>();
-                    if (pieces.length > 3) {
-                        props = pieces[3];
+                    if (i == pieces.length-1) {
+                        props = pieces[i];
                         props = props.replaceAll("\\{", "").replaceAll("}", "");
                         String[] propsPieces = props.split(",");
                         for (String prop : propsPieces) {
@@ -247,22 +257,64 @@ public interface Graph {
                     ids.put(node.getType() + ":" + node.getName(), node.getID());
                     break;
                 case "assign":
-                    if (pieces.length != 3) {
+                    if (pieces.length < 3) {
                         throw new PMException("invalid assign command: " + line);
                     }
-                    long childID = ids.get(pieces[1]);
-                    long parentID = ids.get(pieces[2]);
+
+                    name = pieces[1];
+                    for (i = 2; i < pieces.length; i++) {
+                        String piece = pieces[i];
+                        if (piece.contains(":")) {
+                            break;
+                        }
+
+                        name += " " + piece;
+                    }
+                    long childID = ids.get(name);
+
+                    name = pieces[i];
+                    i++;
+                    for (int j = i; j < pieces.length; j++) {
+                        String piece = pieces[j];
+                        name += " " + piece;
+                    }
+                    long parentID = ids.get(name);
+
                     graph.assign(childID, parentID);
+
                     break;
                 case "assoc":
                     if (pieces.length < 4) {
                         throw new PMException("invalid assoc command: " + line);
                     }
-                    long uaID = ids.get(pieces[1]);
-                    long targetID = ids.get(pieces[2]);
+
+                    name = pieces[1];
+                    for (i = 2; i < pieces.length; i++) {
+                        String piece = pieces[i];
+                        if (piece.contains(":")) {
+                            break;
+                        }
+
+                        name += " " + piece;
+                    }
+                    long uaID = ids.get(name);
+
+                    name = pieces[i];
+                    i++;
+                    for (int j = i; j < pieces.length; j++) {
+                        String piece = pieces[j];
+                        if (piece.contains("[")) {
+                            break;
+                        }
+
+                        name += " " + piece;
+                    }
+                    long targetID = ids.get(name);
+
+                    i++;
                     String opsStr = "";
-                    for (int i = 3; i < pieces.length; i++) {
-                        opsStr += pieces[i].replaceAll("\\[", "").replaceAll("]", "")
+                    for (int j = i; j < pieces.length; j++) {
+                        opsStr += pieces[j].replaceAll("\\[", "").replaceAll("]", "")
                                 .trim();
                     }
                     String[] ops = opsStr.split(",");
