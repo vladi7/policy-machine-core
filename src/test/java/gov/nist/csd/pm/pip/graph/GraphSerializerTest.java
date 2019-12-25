@@ -41,6 +41,7 @@ class GraphSerializerTest {
     @Test
     void testSerialize() throws PMException {
         String actual = Graph.serialize(graph);
+        System.out.println(actual);
         String expected =
                 "# nodes\n" +
                 "node U u1 {k1=v1,k2=v2}\n" +
@@ -58,7 +59,6 @@ class GraphSerializerTest {
                 "# associations\n" +
                 "assoc UA:ua1 OA:oa1 [read, write]";
         assertEquals(expected.replaceAll(" ", ""), actual.trim().replaceAll(" ", ""));
-
     }
 
     @Test

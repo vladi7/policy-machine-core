@@ -175,16 +175,26 @@ public interface Graph {
      */
     Map<Long, Set<String>> getTargetAssociations(long targetID) throws PMException;
 
+    static String toJson() {
+
+    }
+
+    static Graph fromJson(String json) {
+
+    }
+
     static String serialize(Graph graph) throws PMException {
         String s = "# nodes\n";
         Collection<Node> nodes = graph.getNodes();
+        List<Node> nodeList = new ArrayList<>(nodes);
+        nodeList.sort(Comparator.comparing(Node::getType));
         for (Node node : nodes) {
             s += "node " + node.getType() + " " + node.getName() + " " +
                     (node.getProperties().isEmpty() ? "" : node.getProperties().toString().replaceAll(", ", ",")) + "\n";
         }
 
         s += "\n# assignments\n";
-        for (Node node : nodes) {
+        for (Node node : nodeList) {
             Set<Long> parents = graph.getParents(node.getID());
             for (Long parentID : parents) {
                 Node parentNode = graph.getNode(parentID);
@@ -193,7 +203,7 @@ public interface Graph {
         }
 
         s += "\n# associations\n";
-        for (Node node : nodes) {
+        for (Node node : nodeList) {
             Map<Long, Set<String>> assocs = graph.getSourceAssociations(node.getID());
             for (Long targetID : assocs.keySet()) {
                 Node targetNode = graph.getNode(targetID);
