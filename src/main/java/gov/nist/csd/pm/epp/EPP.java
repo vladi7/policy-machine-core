@@ -3,6 +3,7 @@ package gov.nist.csd.pm.epp;
 import gov.nist.csd.pm.epp.events.EventContext;
 import gov.nist.csd.pm.epp.functions.FunctionExecutor;
 import gov.nist.csd.pm.exceptions.PMException;
+import gov.nist.csd.pm.operations.OperationSet;
 import gov.nist.csd.pm.pap.PAP;
 import gov.nist.csd.pm.pdp.PDP;
 import gov.nist.csd.pm.pip.graph.Graph;
@@ -273,7 +274,8 @@ public class EPP {
 
         for(Node subject : subjectNodes) {
             for(Node target : targetNodes) {
-                pap.getGraphPAP().associate(subject.getID(), target.getID(), new HashSet<>(operations));
+                // TODO change recursive true to part of the obligation syntax
+                pap.getGraphPAP().associate(subject.getID(), target.getID(), new OperationSet(operations), true);
             }
         }
     }

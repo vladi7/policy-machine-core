@@ -1,6 +1,7 @@
 package gov.nist.csd.pm.pdp.audit;
 
 import gov.nist.csd.pm.exceptions.PMException;
+import gov.nist.csd.pm.operations.OperationSet;
 import gov.nist.csd.pm.pip.graph.Graph;
 import gov.nist.csd.pm.pip.graph.MemGraph;
 
@@ -74,10 +75,10 @@ public class TestCases {
     private static long ua2ID = 7;
     private static long oa2ID = 8;
 
-    private static final Set<String> RW = new HashSet<>(Arrays.asList("read", "write"));
-    private static final Set<String> R = new HashSet<>(Arrays.asList("read"));
-    private static final Set<String> W = new HashSet<>(Arrays.asList("write"));
-    private static final Set<String> NOOPS = new HashSet<>();
+    private static final OperationSet RW = new OperationSet("read", "write");
+    private static final OperationSet R = new OperationSet("read");
+    private static final OperationSet W = new OperationSet("write");
+    private static final OperationSet NOOPS = new OperationSet();
 
     public static TestCase graph1() throws PMException {
         Graph graph = new MemGraph();
@@ -92,7 +93,7 @@ public class TestCases {
         graph.assign(o1ID, oa1ID);
         graph.assign(oa1ID, pc1ID);
 
-        graph.associate(ua1ID, oa1ID, RW);
+        graph.associate(ua1ID, oa1ID, RW, true);
 
         Map<String, List<String>> expectedPaths = new HashMap<>();
         expectedPaths.put("pc1", Arrays.asList("u1-ua1-oa1-o1 ops=[read, write]"));
@@ -115,8 +116,8 @@ public class TestCases {
         graph.assign(o1ID, oa1ID);
         graph.assign(oa1ID, pc1ID);
 
-        graph.associate(ua1ID, oa1ID, R);
-        graph.associate(ua2ID, oa1ID, W);
+        graph.associate(ua1ID, oa1ID, R, true);
+        graph.associate(ua2ID, oa1ID, W, true);
         
         Map<String, List<String>> expectedPaths = new HashMap<>();
         expectedPaths.put("pc1", Arrays.asList("u1-ua1-oa1-o1 ops=[read]", "u1-ua2-oa1-o1 ops=[write]"));
@@ -138,8 +139,8 @@ public class TestCases {
         graph.assign(o1ID, oa1ID);
         graph.assign(oa1ID, pc1ID);
 
-        graph.associate(ua1ID, oa1ID, R);
-        graph.associate(ua2ID, oa1ID, W);
+        graph.associate(ua1ID, oa1ID, R, true);
+        graph.associate(ua2ID, oa1ID, W, true);
 
         
         Map<String, List<String>> expectedPaths = new HashMap<>();
@@ -173,7 +174,7 @@ public class TestCases {
         graph.assign(ua1ID, pc1ID);
         graph.assign(oa1ID, pc1ID);
 
-        graph.associate(ua1ID, oa1ID, RW);
+        graph.associate(ua1ID, oa1ID, RW, true);
 
         Map<String, List<String>> expectedPaths = new HashMap<>();
         expectedPaths.put("pc1", Arrays.asList());
@@ -192,7 +193,7 @@ public class TestCases {
         graph.assign(o1ID, oa1ID);
         graph.assign(oa1ID, pc1ID);
 
-        graph.associate(ua1ID, oa1ID, R);
+        graph.associate(ua1ID, oa1ID, R, true);
 
 
         Map<String, List<String>> expectedPaths = new HashMap<>();
@@ -220,8 +221,8 @@ public class TestCases {
         graph.assign(oa1ID, pc1ID);
         graph.assign(oa2ID, pc2ID);
 
-        graph.associate(ua1ID, oa1ID, R);
-        graph.associate(ua2ID, oa2ID, RW);
+        graph.associate(ua1ID, oa1ID, R, true);
+        graph.associate(ua2ID, oa2ID, RW, true);
 
         Map<String, List<String>> expectedPaths = new HashMap<>();
         expectedPaths.put("pc1", Arrays.asList("u1-ua1-oa1-o1 ops=[read]"));
@@ -249,8 +250,8 @@ public class TestCases {
         graph.assign(oa1ID, pc1ID);
         graph.assign(oa2ID, pc2ID);
 
-        graph.associate(ua1ID, oa1ID, R);
-        graph.associate(ua2ID, oa2ID, W);
+        graph.associate(ua1ID, oa1ID, R, true);
+        graph.associate(ua2ID, oa2ID, W, true);
 
         Map<String, List<String>> expectedPaths = new HashMap<>();
         expectedPaths.put("pc1", Arrays.asList("u1-ua1-oa1-o1 ops=[read]"));
@@ -272,7 +273,7 @@ public class TestCases {
         graph.assign(o1ID, oa1ID);
         graph.assign(oa1ID, pc1ID);
 
-        graph.associate(ua1ID, oa1ID, RW);
+        graph.associate(ua1ID, oa1ID, RW, true);
 
         Map<String, List<String>> expectedPaths = new HashMap<>();
         expectedPaths.put("pc1", Arrays.asList("u1-ua1-oa1-o1 ops=[read, write]"));
@@ -300,7 +301,7 @@ public class TestCases {
         graph.assign(oa1ID, pc1ID);
         graph.assign(oa2ID, pc2ID);
 
-        graph.associate(ua1ID, oa1ID, R);
+        graph.associate(ua1ID, oa1ID, R, true);
 
         Map<String, List<String>> expectedPaths = new HashMap<>();
         expectedPaths.put("pc1", Arrays.asList("u1-ua1-oa1-o1 ops=[read]"));
@@ -320,7 +321,7 @@ public class TestCases {
         graph.assign(o1ID, oa1ID);
         graph.assign(oa1ID, pc1ID);
 
-        graph.associate(ua1ID, oa1ID, RW);
+        graph.associate(ua1ID, oa1ID, RW, true);
 
         Map<String, List<String>> expectedPaths = new HashMap<>();
         expectedPaths.put("pc1", Arrays.asList("u1-ua1-oa1-o1 ops=[read, write]"));
@@ -342,8 +343,8 @@ public class TestCases {
         graph.assign(o1ID, oa1ID);
         graph.assign(oa1ID, pc1ID);
 
-        graph.associate(ua1ID, oa1ID, R);
-        graph.associate(ua2ID, oa1ID, W);
+        graph.associate(ua1ID, oa1ID, R, true);
+        graph.associate(ua2ID, oa1ID, W, true);
 
         Map<String, List<String>> expectedPaths = new HashMap<>();
         expectedPaths.put("pc1", Arrays.asList("u1-ua1-oa1-o1 ops=[read]", "u1-ua2-oa1-o1 ops=[write]"));
@@ -369,8 +370,8 @@ public class TestCases {
         graph.assign(oa1ID, pc1ID);
         graph.assign(oa2ID, pc2ID);
 
-        graph.associate(ua1ID, oa1ID, R);
-        graph.associate(ua2ID, oa2ID, RW);
+        graph.associate(ua1ID, oa1ID, R, true);
+        graph.associate(ua2ID, oa2ID, RW, true);
 
         Map<String, List<String>> expectedPaths = new HashMap<>();
         expectedPaths.put("pc1", Arrays.asList("u1-ua1-oa1-o1 ops=[read]"));
@@ -396,8 +397,8 @@ public class TestCases {
         graph.assign(oa1ID, pc1ID);
         graph.assign(oa2ID, pc2ID);
 
-        graph.associate(ua1ID, oa1ID, RW);
-        graph.associate(ua2ID, oa2ID, R);
+        graph.associate(ua1ID, oa1ID, RW, true);
+        graph.associate(ua2ID, oa2ID, R, true);
 
         Map<String, List<String>> expectedPaths = new HashMap<>();
         expectedPaths.put("pc1", Arrays.asList("u1-ua1-oa1-o1 ops=[read, write]"));
@@ -422,7 +423,7 @@ public class TestCases {
         graph.assign(oa1ID, pc1ID);
         graph.assign(oa2ID, pc2ID);
 
-        graph.associate(ua1ID, oa1ID, RW);
+        graph.associate(ua1ID, oa1ID, RW, true);
 
         Map<String, List<String>> expectedPaths = new HashMap<>();
         expectedPaths.put("pc1", Arrays.asList("u1-ua1-oa1-o1 ops=[read, write]"));
@@ -443,7 +444,7 @@ public class TestCases {
         graph.assign(o1ID, oa1ID);
         graph.assign(oa1ID, pc1ID);
 
-        graph.associate(ua1ID, oa1ID, R);
+        graph.associate(ua1ID, oa1ID, R, true);
 
         Map<String, List<String>> expectedPaths = new HashMap<>();
         expectedPaths.put("pc1", Arrays.asList("u1-ua1-oa1-o1 ops=[read]"));
@@ -462,7 +463,7 @@ public class TestCases {
         graph.assign(o1ID, oa1ID);
         graph.assign(oa1ID, pc1ID);
 
-        graph.associate(ua1ID, oa1ID, R);
+        graph.associate(ua1ID, oa1ID, R, true);
 
         Map<String, List<String>> expectedPaths = new HashMap<>();
         expectedPaths.put("pc1", Arrays.asList("u1-ua1-oa1-o1 ops=[read]"));
@@ -484,8 +485,8 @@ public class TestCases {
         graph.assign(o1ID, oa1ID);
         graph.assign(oa1ID, oa2ID);
 
-        graph.associate(ua1ID, oa1ID, RW);
-        graph.associate(ua2ID, oa2ID, R);
+        graph.associate(ua1ID, oa1ID, RW, true);
+        graph.associate(ua2ID, oa2ID, R, true);
 
         Map<String, List<String>> expectedPaths = new HashMap<>();
         expectedPaths.put("pc1", Arrays.asList());
@@ -509,8 +510,8 @@ public class TestCases {
         graph.assign(oa1ID, oa2ID);
         graph.assign(oa2ID, pc1ID);
 
-        graph.associate(ua1ID, oa1ID, RW);
-        graph.associate(ua2ID, oa2ID, R);
+        graph.associate(ua1ID, oa1ID, RW, true);
+        graph.associate(ua2ID, oa2ID, R, true);
 
         Map<String, List<String>> expectedPaths = new HashMap<>();
         expectedPaths.put("pc1", Arrays.asList("u1-ua1-oa1-o1 ops=[read, write]", "u1-ua1-ua2-oa2-oa1-o1 ops=[read]"));
@@ -534,8 +535,8 @@ public class TestCases {
         graph.assign(oa1ID, pc1ID);
         graph.assign(oa2ID, pc1ID);
 
-        graph.associate(ua1ID, oa1ID, W);
-        graph.associate(ua2ID, oa1ID, R);
+        graph.associate(ua1ID, oa1ID, W, true);
+        graph.associate(ua2ID, oa1ID, R, true);
 
         Map<String, List<String>> expectedPaths = new HashMap<>();
         expectedPaths.put("pc1", Arrays.asList("u1-ua2-oa1-o1 ops=[read]", "u1-ua1-oa1-o1 ops=[write]"));
@@ -557,8 +558,8 @@ public class TestCases {
         graph.assign(oa1ID, pc1ID);
         graph.assign(ua1ID, pc1ID);
 
-        graph.associate(ua1ID, oa1ID, W);
-        graph.associate(ua2ID, oa1ID, R);
+        graph.associate(ua1ID, oa1ID, W, true);
+        graph.associate(ua2ID, oa1ID, R, true);
 
         Map<String, List<String>> expectedPaths = new HashMap<>();
         expectedPaths.put("pc1", Arrays.asList("u1-ua2-oa1-o1 ops=[read]", "u1-ua1-oa1-o1 ops=[write]"));

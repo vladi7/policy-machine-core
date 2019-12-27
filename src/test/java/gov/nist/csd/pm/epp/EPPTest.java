@@ -4,12 +4,14 @@ import gov.nist.csd.pm.epp.events.AssignEvent;
 import gov.nist.csd.pm.epp.events.AssignToEvent;
 import gov.nist.csd.pm.epp.events.DeassignEvent;
 import gov.nist.csd.pm.exceptions.PMException;
+import gov.nist.csd.pm.operations.OperationSet;
 import gov.nist.csd.pm.pap.PAP;
 import gov.nist.csd.pm.pdp.PDP;
 import gov.nist.csd.pm.pip.graph.Graph;
 import gov.nist.csd.pm.pip.graph.MemGraph;
 import gov.nist.csd.pm.pip.graph.model.nodes.Node;
 import gov.nist.csd.pm.pip.graph.model.nodes.NodeType;
+import gov.nist.csd.pm.pip.graph.model.relationships.Association;
 import gov.nist.csd.pm.pip.obligations.MemObligations;
 import gov.nist.csd.pm.pip.obligations.evr.EVRException;
 import gov.nist.csd.pm.pip.obligations.evr.EVRParser;
@@ -48,7 +50,7 @@ class EPPTest {
         graph.assign(u1.getID(), ua1.getID());
         graph.assign(ua1.getID(), pc1.getID());
 
-        graph.associate(ua1.getID(), oa1.getID(), new HashSet<>(Arrays.asList("read", "write")));
+        graph.associate(ua1.getID(), oa1.getID(), new OperationSet("read", "write"), true);
 
         pdp = new PDP(new PAP(graph, new MemProhibitions(), new MemObligations()), null);
     }
@@ -106,7 +108,7 @@ class EPPTest {
         assertTrue(parents.iterator().next() == oa1.getID());
 
         // check ua1 was associated with new OA
-        Map<Long, Set<String>> sourceAssociations = pdp.getPAP().getGraphPAP().getSourceAssociations(ua1.getID());
+        Map<Long, Association> sourceAssociations = pdp.getPAP().getGraphPAP().getSourceAssociations(ua1.getID());
         assertTrue(sourceAssociations.containsKey(newOA.getID()));
 
         // check that the deny was created

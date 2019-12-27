@@ -1,4 +1,4 @@
-package gov.nist.csd.pm.common;
+package gov.nist.csd.pm.operations;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -12,6 +12,7 @@ public class Operations {
     public static final String FILE_READ                  = "file read";
     public static final String WRITE                      = "write";
     public static final String READ                       = "read";
+    public static final String EXECUTE                    = "execute";
     public static final String CREATE_POLICY_CLASS        = "create policy class";
     public static final String ASSIGN_OBJECT_ATTRIBUTE    = "assign object attribute";
     public static final String ASSIGN_OBJECT_ATTRIBUTE_TO = "assign object attribute to";
@@ -45,7 +46,7 @@ public class Operations {
     public static final String PROHIBIT_SUBJECT           = "prohibit subject";
     public static final String PROHIBIT_RESOURCE          = "prohibit resource";
 
-    private static final Set<String> admin = new HashSet<>(Arrays.asList(
+    private static final Set<String> admin = new OperationSet(
             CREATE_POLICY_CLASS,
             ASSIGN_OBJECT_ATTRIBUTE,
             ASSIGN_OBJECT_ATTRIBUTE_TO,
@@ -77,16 +78,21 @@ public class Operations {
             PROHIBIT_SUBJECT,
             PROHIBIT_RESOURCE,
             RESET
-    ));
+    );
 
     private static final Set<String> resource = new HashSet<>(Arrays.asList(
             FILE_WRITE,
             FILE_READ,
             WRITE,
-            READ
+            READ,
+            EXECUTE
     ));
 
     public static boolean isAdmin(String op) {
-        return admin.contains(op);
+        return admin.contains(op) || op.equals(ALL_OPERATIONS);
+    }
+
+    public static boolean isResource(String op) {
+        return resource.contains(op) || op.equals(ALL_OPERATIONS);
     }
 }

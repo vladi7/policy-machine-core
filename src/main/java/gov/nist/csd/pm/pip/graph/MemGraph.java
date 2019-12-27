@@ -1,6 +1,7 @@
 package gov.nist.csd.pm.pip.graph;
 
 import gov.nist.csd.pm.exceptions.PMException;
+import gov.nist.csd.pm.operations.OperationSet;
 import gov.nist.csd.pm.pip.graph.model.nodes.Node;
 import gov.nist.csd.pm.pip.graph.model.nodes.NodeType;
 import gov.nist.csd.pm.pip.graph.model.relationships.Assignment;
@@ -288,7 +289,7 @@ public class MemGraph implements Graph {
      * @throws PMException              if the target node does not exist in the graph.
      */
     @Override
-    public void associate(long uaID, long targetID, Set<String> operations) throws PMException {
+    public void associate(long uaID, long targetID, OperationSet operations, boolean recursive) throws PMException {
         if (!exists(uaID)) {
             throw new PMException(String.format(NODE_NOT_FOUND_MSG, uaID));
         }
@@ -307,11 +308,11 @@ public class MemGraph implements Graph {
         // if an association exists update it
         Relationship edge = graph.getEdge(uaID, targetID);
         if (edge == null || edge instanceof Assignment) {
-            graph.addEdge(uaID, targetID, new Association(uaID, targetID, operations));
+            graph.addEdge(uaID, targetID, new Association(uaID, targetID, operations, recursive));
         }
         else if (edge instanceof Association) {
-            Association assoc = (Association) graph.getEdge(uaID, targetID);
-            assoc.setOperations(operations);
+            graph.removeEdge(uaID, targetID);
+            graph.addEdge(uaID, targetID, new Association(uaID, targetID, operations, recursive));
         }
     }
 
@@ -331,17 +332,17 @@ public class MemGraph implements Graph {
      * @throws PMException if the given ID does not exist in the graph.
      */
     @Override
-    public Map<Long, Set<String>> getSourceAssociations(long sourceID) throws PMException {
+    public Map<Long, Association> getSourceAssociations(long sourceID) throws PMException {
         if (!exists(sourceID)) {
             throw new PMException(String.format(NODE_NOT_FOUND_MSG, sourceID));
         }
 
-        Map<Long, Set<String>> assocs = new HashMap<>();
+        Map<Long, Association> assocs = new HashMap<>();
         Set<Relationship> rels = graph.outgoingEdgesOf(sourceID);
         for (Relationship rel : rels) {
             if (rel instanceof Association) {
                 Association assoc = (Association) rel;
-                assocs.put(assoc.getTargetID(), new HashSet<>(assoc.getOperations()));
+                assocs.put(assoc.getTargetID(), assoc);
             }
         }
         return assocs;
@@ -355,17 +356,17 @@ public class MemGraph implements Graph {
      * @throws PMException if the given ID does not exist in the graph.
      */
     @Override
-    public Map<Long, Set<String>> getTargetAssociations(long targetID) throws PMException {
+    public Map<Long, Association> getTargetAssociations(long targetID) throws PMException {
         if (!exists(targetID)) {
             throw new PMException(String.format(NODE_NOT_FOUND_MSG, targetID));
         }
 
-        Map<Long, Set<String>> assocs = new HashMap<>();
+        Map<Long, Association> assocs = new HashMap<>();
         Set<Relationship> rels = graph.incomingEdgesOf(targetID);
         for (Relationship rel : rels) {
             if (rel instanceof Association) {
                 Association assoc = (Association) rel;
-                assocs.put(assoc.getSourceID(), new HashSet<>(assoc.getOperations()));
+                assocs.put(assoc.getSourceID(), assoc);
             }
         }
         return assocs;

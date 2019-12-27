@@ -2,6 +2,7 @@ package gov.nist.csd.pm.pdp.services;
 
 import gov.nist.csd.pm.epp.EPP;
 import gov.nist.csd.pm.exceptions.PMException;
+import gov.nist.csd.pm.operations.OperationSet;
 import gov.nist.csd.pm.pap.PAP;
 import gov.nist.csd.pm.pdp.audit.Auditor;
 import gov.nist.csd.pm.pdp.audit.PReviewAuditor;
@@ -9,6 +10,7 @@ import gov.nist.csd.pm.pdp.audit.model.Explain;
 import gov.nist.csd.pm.pdp.decider.Decider;
 import gov.nist.csd.pm.pip.graph.model.nodes.Node;
 import gov.nist.csd.pm.pip.graph.model.nodes.NodeType;
+import gov.nist.csd.pm.pip.graph.model.relationships.Association;
 
 import java.util.*;
 
@@ -110,7 +112,7 @@ public class AnalyticsService extends Service {
 
                     // Find the opsets of this user attribute. Note that the set of containers for this
                     // node (user attribute) may contain not only opsets.
-                    Map<Long, Set<String>> assocs = getGraphPAP().getSourceAssociations(crtNode);
+                    Map<Long, Association> assocs = getGraphPAP().getSourceAssociations(crtNode);
 
                     // Go through the containers and only for opsets do the following.
                     // For each opset ops of ua:
@@ -122,7 +124,7 @@ public class AnalyticsService extends Service {
                             Hashtable htOaLabel = (Hashtable)htReachableOas.get(targetID);
 
                             // Get the operations from the opset:
-                            Set opers = assocs.get(targetID);
+                            Set opers = assocs.get(targetID).getOperations();
                             // For each operation in the opset
                             Iterator opersIter = opers.iterator();
                             while (opersIter.hasNext()) {
@@ -146,7 +148,7 @@ public class AnalyticsService extends Service {
                             Hashtable htOaLabel = new Hashtable();
 
                             // Get the operations from the opset:
-                            Set opers = assocs.get(targetID);
+                            Set opers = assocs.get(targetID).getOperations();
                             // For each operation in the opset
                             Iterator opersIter = opers.iterator();
                             while (opersIter.hasNext()) {

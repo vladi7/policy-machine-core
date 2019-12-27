@@ -1,5 +1,6 @@
 package gov.nist.csd.pm.pdp.audit;
 
+import gov.nist.csd.pm.operations.OperationSet;
 import gov.nist.csd.pm.pdp.audit.model.Explain;
 import gov.nist.csd.pm.pdp.audit.model.Path;
 import gov.nist.csd.pm.pdp.audit.model.PolicyClass;
@@ -9,6 +10,7 @@ import gov.nist.csd.pm.pip.graph.dag.propagator.Propagator;
 import gov.nist.csd.pm.pip.graph.dag.searcher.DepthFirstSearcher;
 import gov.nist.csd.pm.pip.graph.dag.visitor.Visitor;
 import gov.nist.csd.pm.pip.graph.model.nodes.Node;
+import gov.nist.csd.pm.pip.graph.model.relationships.Association;
 
 import java.util.*;
 
@@ -118,7 +120,7 @@ public class PReviewAuditor implements Auditor {
                 EdgePath.Edge lastUserEdge = userPath.getEdges().get(userPath.getEdges().size()-1);
 
                 // if the last edge does not have any ops, it is not an association, so ignore it
-                if (lastUserEdge.getOps() == null) {
+                if (lastUserEdge.getAssociation() == null) {
                     continue;
                 }
 
@@ -176,8 +178,8 @@ public class PReviewAuditor implements Auditor {
         // the operations are the ops of the association in the user path
         Set<String> ops = new HashSet<>();
         for(EdgePath.Edge edge : userPath.getEdges()) {
-            if(edge.getOps() != null) {
-                ops = edge.getOps();
+            if(edge.getAssociation() != null) {
+                ops = edge.getAssociation().getOperations();
                 break;
             }
         }
@@ -214,7 +216,7 @@ public class PReviewAuditor implements Auditor {
                     for(EdgePath p : parentPaths) {
                         EdgePath parentPath = new EdgePath();
                         for(EdgePath.Edge e : p.getEdges()) {
-                            parentPath.addEdge(new EdgePath.Edge(e.getSource(), e.getTarget(), e.getOps()));
+                            parentPath.addEdge(new EdgePath.Edge(e.getSource(), e.getTarget(), e.getAssociation()));
                         }
 
                         parentPath.getEdges().add(0, edge);
@@ -223,12 +225,12 @@ public class PReviewAuditor implements Auditor {
                 }
             }
 
-            Map<Long, Set<String>> assocs = graph.getSourceAssociations(node.getID());
+            Map<Long, Association> assocs = graph.getSourceAssociations(node.getID());
             for(Long targetID : assocs.keySet()) {
-                Set<String> ops = assocs.get(targetID);
+                Association assoc = assocs.get(targetID);
                 Node targetNode = graph.getNode(targetID);
                 EdgePath path = new EdgePath();
-                path.addEdge(new EdgePath.Edge(node, targetNode, ops));
+                path.addEdge(new EdgePath.Edge(node, targetNode, assoc));
                 nodePaths.add(path);
             }
 
@@ -242,7 +244,7 @@ public class PReviewAuditor implements Auditor {
             for(EdgePath p : parentPaths) {
                 EdgePath path = new EdgePath();
                 for(EdgePath.Edge edge : p.getEdges()) {
-                    path.addEdge(new EdgePath.Edge(edge.getSource(), edge.getTarget(), edge.getOps()));
+                    path.addEdge(new EdgePath.Edge(edge.getSource(), edge.getTarget(), edge.getAssociation()));
                 }
 
                 EdgePath newPath = new EdgePath();
@@ -313,7 +315,7 @@ public class PReviewAuditor implements Auditor {
 
                 nodePath.getNodes().add(node);
 
-                if(edge.getOps() != null) {
+                if(edge.getAssociation() != null) {
                     foundAssoc = true;
                     if(edge.getTarget().getID() == targetID) {
                         return nodePath;
@@ -351,12 +353,12 @@ public class PReviewAuditor implements Auditor {
         private static class Edge {
             private Node source;
             private Node target;
-            private Set<String> ops;
+            private Association association;
 
-            public Edge(Node source, Node target, Set<String> ops) {
+            public Edge(Node source, Node target, Association association) {
                 this.source = source;
                 this.target = target;
-                this.ops = ops;
+                this.association = association;
             }
 
             public Node getSource() {
@@ -375,16 +377,18 @@ public class PReviewAuditor implements Auditor {
                 this.target = target;
             }
 
-            public Set<String> getOps() {
-                return ops;
+            public Association getAssociation() {
+                return association;
             }
 
-            public void setOps(Set<String> ops) {
-                this.ops = ops;
+            public void setAssociation(Association association) {
+                this.association = association;
             }
 
             public String toString() {
-                return source.getName() + "(" + source.getType() + ")" + "-->" + (ops != null ? ops + "-->" : "") + target.getName() + "(" + target.getType() + ")";
+                return source.getName() + "(" + source.getType() + ")" + "-->" +
+                        (association.getOperations() != null ? association.getOperations() + "-->" : "") +
+                        target.getName() + "(" + target.getType() + ")";
             }
         }
     }

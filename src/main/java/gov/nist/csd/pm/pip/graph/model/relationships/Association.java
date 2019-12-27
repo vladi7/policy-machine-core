@@ -1,13 +1,12 @@
 package gov.nist.csd.pm.pip.graph.model.relationships;
 
 import gov.nist.csd.pm.exceptions.PMException;
+import gov.nist.csd.pm.operations.OperationSet;
+import gov.nist.csd.pm.operations.Operations;
 import gov.nist.csd.pm.pip.graph.model.nodes.NodeType;
 
 import java.io.Serializable;
-import java.util.EnumMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 import static gov.nist.csd.pm.pip.graph.model.nodes.NodeType.*;
 
@@ -26,19 +25,49 @@ public class Association extends Relationship implements Serializable {
         validAssociations.put(U, new NodeType[]{});
     }
 
-    private Set<String> operations;
+    private OperationSet operations;
+    private boolean recursive;
 
-    public Association(long uaID, long targetID, Set<String> operations) {
+    public Association(long uaID, long targetID, OperationSet operations, boolean recursive) {
         super(uaID, targetID);
         this.operations = operations;
+        this.recursive = recursive;
     }
 
-    public Set<String> getOperations() {
+    public OperationSet getOperations() {
         return operations;
     }
 
-    public void setOperations(Set<String> operations) {
+    public void setOperations(OperationSet operations) {
         this.operations = operations;
+    }
+
+    public static Map<NodeType, NodeType[]> getValidAssociations() {
+        return validAssociations;
+    }
+
+    public static void setValidAssociations(Map<NodeType, NodeType[]> validAssociations) {
+        Association.validAssociations = validAssociations;
+    }
+
+    public boolean isRecursive() {
+        return recursive;
+    }
+
+    public void setRecursive(boolean recursive) {
+        this.recursive = recursive;
+    }
+
+    public OperationSet getAdminOps() {
+        OperationSet set = this.operations;
+        set.removeIf(op -> !Operations.isAdmin(op));
+        return set;
+    }
+
+    public OperationSet getResourceOps() {
+        OperationSet set = this.operations;
+        set.removeIf(Operations::isAdmin);
+        return set;
     }
 
     /**

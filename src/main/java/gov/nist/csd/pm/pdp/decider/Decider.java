@@ -1,6 +1,7 @@
 package gov.nist.csd.pm.pdp.decider;
 
 import gov.nist.csd.pm.exceptions.PMException;
+import gov.nist.csd.pm.operations.OperationSet;
 
 import java.util.Collection;
 import java.util.Map;
@@ -76,7 +77,7 @@ public interface Decider {
      * @param processID
      * @return
      */
-    Map<Long, Set<String>> generateACL(long oaID, long processID);
+    Map<Long, OperationSet> generateACL(long oaID, long processID);
 }
 
 

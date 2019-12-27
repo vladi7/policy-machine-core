@@ -1,8 +1,10 @@
 package gov.nist.csd.pm.pip.graph;
 
 import gov.nist.csd.pm.exceptions.PMException;
+import gov.nist.csd.pm.operations.OperationSet;
 import gov.nist.csd.pm.pip.graph.model.nodes.Node;
 import gov.nist.csd.pm.pip.graph.model.nodes.NodeType;
+import gov.nist.csd.pm.pip.graph.model.relationships.Association;
 
 import java.util.*;
 import java.util.regex.Matcher;
@@ -137,12 +139,14 @@ public interface Graph {
      * already exists between these two nodes, overwrite the existing operations with the ones provided.  Associations
      * can only begin at a user attribute but can point to either an Object or user attribute
      *
-     * @param uaID The ID of the user attribute.
-     * @param targetID The ID of the target attribute.
-     * @param operations A Set of operations to add to the association.
+     * @param uaID the ID of the user attribute.
+     * @param targetID the ID of the target attribute.
+     * @param operations a set of operations to add to the association.
+     * @param recursive if true, apply the association recursively to nodes that are contained in the target. If false,
+     *                  only apply the association to the target.
      * @throws PMException if there is an error associating the two nodes.
      */
-    void associate(long uaID, long targetID, Set<String> operations) throws PMException;
+    void associate(long uaID, long targetID, OperationSet operations, boolean recursive) throws PMException;
 
     /**
      * Delete the Association between the user attribute and Target node.
@@ -162,7 +166,7 @@ public interface Graph {
      * @return a Map of the target node IDs and the operations for each association.
      * @throws PMException if there is an retrieving the associations of the source node from the graph.
      */
-    Map<Long, Set<String>> getSourceAssociations(long sourceID) throws PMException;
+    Map<Long, Association> getSourceAssociations(long sourceID) throws PMException;
 
     /**
      * Retrieve the associations the given node is the target of.  The target node can be an Object Attribute or a User
@@ -173,14 +177,14 @@ public interface Graph {
      * @return a Map of the source Ids and the operations for each association.
      * @throws PMException if there is an retrieving the associations of the target node from the graph.
      */
-    Map<Long, Set<String>> getTargetAssociations(long targetID) throws PMException;
+    Map<Long, Association> getTargetAssociations(long targetID) throws PMException;
 
     static String toJson() {
-
+        return "";
     }
 
     static Graph fromJson(String json) {
-
+        return new MemGraph();
     }
 
     static String serialize(Graph graph) throws PMException {

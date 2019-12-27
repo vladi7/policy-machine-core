@@ -1,7 +1,9 @@
 package gov.nist.csd.pm.pip.graph;
 
 import gov.nist.csd.pm.exceptions.PMException;
+import gov.nist.csd.pm.operations.OperationSet;
 import gov.nist.csd.pm.pip.graph.model.nodes.Node;
+import gov.nist.csd.pm.pip.graph.model.relationships.Association;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
@@ -167,15 +169,15 @@ class MemGraphTest {
         Node uaNode = graph.createNode(1, "ua", UA, null);
         Node targetNode = graph.createNode(3, "target", OA, null);
 
-        graph.associate(uaNode.getID(), targetNode.getID(), new HashSet<>(Arrays.asList("read", "write")));
+        graph.associate(uaNode.getID(), targetNode.getID(), new OperationSet("read", "write"), true);
 
-        Map<Long, Set<String>> associations = graph.getSourceAssociations(uaNode.getID());
+        Map<Long, Association> associations = graph.getSourceAssociations(uaNode.getID());
         assertTrue(associations.containsKey(targetNode.getID()));
-        assertTrue(associations.get(targetNode.getID()).containsAll(Arrays.asList("read", "write")));
+        assertTrue(associations.get(targetNode.getID()).getOperations().containsAll(Arrays.asList("read", "write")));
 
         associations = graph.getTargetAssociations(targetNode.getID());
         assertTrue(associations.containsKey(uaNode.getID()));
-        assertTrue(associations.get(uaNode.getID()).containsAll(Arrays.asList("read", "write")));
+        assertTrue(associations.get(uaNode.getID()).getOperations().containsAll(Arrays.asList("read", "write")));
     }
 
     @Test
@@ -185,10 +187,10 @@ class MemGraphTest {
         Node uaNode = graph.createNode(1, "ua", UA, null);
         Node targetNode = graph.createNode(3, "target", OA, null);
 
-        graph.associate(uaNode.getID(), targetNode.getID(), new HashSet<>(Arrays.asList("read", "write")));
+        graph.associate(uaNode.getID(), targetNode.getID(), new OperationSet("read", "write"), true);
         graph.dissociate(uaNode.getID(), targetNode.getID());
 
-        Map<Long, Set<String>> associations = graph.getSourceAssociations(uaNode.getID());
+        Map<Long, Association> associations = graph.getSourceAssociations(uaNode.getID());
         assertFalse(associations.containsKey(targetNode.getID()));
 
         associations = graph.getTargetAssociations(targetNode.getID());
@@ -202,11 +204,11 @@ class MemGraphTest {
         Node uaNode = graph.createNode(1, "ua", UA, null);
         Node targetNode = graph.createNode(3, "target", OA, null);
 
-        graph.associate(uaNode.getID(), targetNode.getID(), new HashSet<>(Arrays.asList("read", "write")));
+        graph.associate(uaNode.getID(), targetNode.getID(), new OperationSet("read", "write"), true);
 
-        Map<Long, Set<String>> associations = graph.getSourceAssociations(uaNode.getID());
+        Map<Long, Association> associations = graph.getSourceAssociations(uaNode.getID());
         assertTrue(associations.containsKey(targetNode.getID()));
-        assertTrue(associations.get(targetNode.getID()).containsAll(Arrays.asList("read", "write")));
+        assertTrue(associations.get(targetNode.getID()).getOperations().containsAll(Arrays.asList("read", "write")));
 
         assertThrows(PMException.class, () -> graph.getSourceAssociations(123));
     }
@@ -218,11 +220,11 @@ class MemGraphTest {
         Node uaNode = graph.createNode(1, "ua", UA, null);
         Node targetNode = graph.createNode(3, "target", OA, null);
 
-        graph.associate(uaNode.getID(), targetNode.getID(), new HashSet<>(Arrays.asList("read", "write")));
+        graph.associate(uaNode.getID(), targetNode.getID(), new OperationSet("read", "write"), true);
 
-        Map<Long, Set<String>> associations = graph.getTargetAssociations(targetNode.getID());
+        Map<Long, Association> associations = graph.getTargetAssociations(targetNode.getID());
         assertTrue(associations.containsKey(uaNode.getID()));
-        assertTrue(associations.get(uaNode.getID()).containsAll(Arrays.asList("read", "write")));
+        assertTrue(associations.get(uaNode.getID()).getOperations().containsAll(Arrays.asList("read", "write")));
 
         assertThrows(PMException.class, () -> graph.getTargetAssociations(123));
     }

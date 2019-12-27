@@ -7,6 +7,7 @@ import gov.nist.csd.pm.epp.events.DeassignEvent;
 import gov.nist.csd.pm.epp.events.DeassignFromEvent;
 import gov.nist.csd.pm.exceptions.PMAuthorizationException;
 import gov.nist.csd.pm.exceptions.PMException;
+import gov.nist.csd.pm.operations.OperationSet;
 import gov.nist.csd.pm.pap.PAP;
 import gov.nist.csd.pm.pap.SuperGraph;
 import gov.nist.csd.pm.pip.graph.model.nodes.Node;
@@ -16,7 +17,7 @@ import gov.nist.csd.pm.pip.graph.model.relationships.Association;
 
 import java.util.*;
 
-import static gov.nist.csd.pm.common.Operations.*;
+import static gov.nist.csd.pm.operations.Operations.*;
 import static gov.nist.csd.pm.pdp.decider.PReviewDecider.ALL_OPERATIONS;
 import static gov.nist.csd.pm.pip.graph.model.nodes.NodeType.OA;
 import static gov.nist.csd.pm.pip.graph.model.nodes.NodeType.PC;
@@ -148,9 +149,9 @@ public class GraphService extends Service {
         // assign super UA to PC
         getPAP().getGraphPAP().assign(SuperGraph.getSuperUA1().getID(), pcNode.getID());
         // associate Super UA and PC UA
-        getPAP().getGraphPAP().associate(SuperGraph.getSuperUA1().getID(), pcUANode.getID(), new HashSet<>(Arrays.asList(ALL_OPERATIONS)));
+        getPAP().getGraphPAP().associate(SuperGraph.getSuperUA1().getID(), pcUANode.getID(), new OperationSet(ALL_OPERATIONS), true);
         // associate Super UA and PC OA
-        getPAP().getGraphPAP().associate(SuperGraph.getSuperUA1().getID(), pcOANode.getID(), new HashSet<>(Arrays.asList(ALL_OPERATIONS)));
+        getPAP().getGraphPAP().associate(SuperGraph.getSuperUA1().getID(), pcOANode.getID(), new OperationSet(ALL_OPERATIONS), true);
 
         return pcNode;
     }
@@ -479,7 +480,7 @@ public class GraphService extends Service {
      * @throws PMException if the association is invalid.
      * @throws PMAuthorizationException if the current user does not have permission to create the association.
      */
-    public void associate(UserContext userCtx, long uaID, long targetID, Set<String> operations) throws PMException {
+    public void associate(UserContext userCtx, long uaID, long targetID, OperationSet operations, boolean recursive) throws PMException {
         if(userCtx == null) {
             throw new PMException("no user context provided to the PDP");
         }
@@ -508,7 +509,7 @@ public class GraphService extends Service {
         }
 
         //create association in PAP
-        getGraphPAP().associate(uaID, targetID, operations);
+        getGraphPAP().associate(uaID, targetID, operations, true);
     }
 
     /**
@@ -557,7 +558,7 @@ public class GraphService extends Service {
      * @throws PMException If the given node does not exist.
      * @throws PMAuthorizationException If the current user does not have permission to get hte node's associations.
      */
-    public Map<Long, Set<String>> getSourceAssociations(UserContext userCtx, long sourceID) throws PMException {
+    public Map<Long, Association> getSourceAssociations(UserContext userCtx, long sourceID) throws PMException {
         if(userCtx == null) {
             throw new PMException("no user context provided to the PDP");
         }
@@ -582,7 +583,7 @@ public class GraphService extends Service {
      * @throws PMException If the given node does not exist.
      * @throws PMAuthorizationException If the current user does not have permission to get hte node's associations.
      */
-    public Map<Long, Set<String>> getTargetAssociations(UserContext userCtx, long targetID) throws PMException {
+    public Map<Long, Association> getTargetAssociations(UserContext userCtx, long targetID) throws PMException {
         if(userCtx == null) {
             throw new PMException("no user context provided to the PDP");
         }

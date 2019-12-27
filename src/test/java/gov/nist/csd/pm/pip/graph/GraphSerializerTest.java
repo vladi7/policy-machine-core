@@ -1,15 +1,17 @@
 package gov.nist.csd.pm.pip.graph;
 
 import gov.nist.csd.pm.exceptions.PMException;
+import gov.nist.csd.pm.operations.OperationSet;
 import gov.nist.csd.pm.pip.graph.model.nodes.Node;
 import gov.nist.csd.pm.pip.graph.model.nodes.NodeType;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import java.util.*;
+import java.util.Arrays;
 
-import static gov.nist.csd.pm.pip.graph.model.nodes.NodeType.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static gov.nist.csd.pm.pip.graph.model.nodes.NodeType.O;
+import static gov.nist.csd.pm.pip.graph.model.nodes.NodeType.OA;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class GraphSerializerTest {
 
@@ -24,7 +26,7 @@ class GraphSerializerTest {
     static void setUp() throws PMException {
         graph = new MemGraph();
 
-        graph.createNode(u1ID, "u1", U, Node.toProperties("k1", "v1", "k2", "v2"));
+        graph.createNode(u1ID, "u1", NodeType.U, null);
         graph.createNode(o1ID, "o1", O, null);
         graph.createNode(ua1ID, "ua1", NodeType.UA, null);
         graph.createNode(oa1ID, "oa1", OA, null);
@@ -35,102 +37,28 @@ class GraphSerializerTest {
         graph.assign(ua1ID, pc1ID);
         graph.assign(oa1ID, pc1ID);
 
-        graph.associate(ua1ID, oa1ID, new HashSet<>(Arrays.asList("read", "write")));
+        graph.associate(ua1ID, oa1ID, new OperationSet("read", "write"), true);
     }
 
     @Test
     void testSerialize() throws PMException {
-        String actual = Graph.serialize(graph);
-        System.out.println(actual);
-        String expected =
-                "# nodes\n" +
-                "node U u1 {k1=v1,k2=v2}\n" +
-                "node O o1 \n" +
-                "node UA ua1 \n" +
-                "node OA oa1 \n" +
-                "node PC pc1 \n" +
-                "\n" +
-                "# assignments\n" +
-                "assign U:u1 UA:ua1\n" +
-                "assign O:o1 OA:oa1\n" +
-                "assign UA:ua1 PC:pc1\n" +
-                "assign OA:oa1 PC:pc1\n" +
-                "\n" +
-                "# associations\n" +
-                "assoc UA:ua1 OA:oa1 [read, write]";
-        assertEquals(expected.replaceAll(" ", ""), actual.trim().replaceAll(" ", ""));
-    }
+        String json = GraphSerializer.toJson(graph);
+        System.out.println(json);
+        Graph deGraph = GraphSerializer.fromJson(new MemGraph(), json);
 
-    @Test
-    void testDeserialize() throws PMException {
-        String str =
-                "# nodes\n" +
-                        "node U u1 {k1=v1,k2=v2}\n" +
-                        "node O o1 \n" +
-                        "node UA ua1 \n" +
-                        "node OA oa1 test \n" +
-                        "node PC pc1 \n" +
-                        "\n" +
-                        "# assignments\n" +
-                        "assign U:u1 UA:ua1\n" +
-                        "assign O:o1 OA:oa1 test\n" +
-                        "assign UA:ua1 PC:pc1\n" +
-                        "assign OA:oa1 test PC:pc1\n" +
-                        "\n" +
-                        "# associations\n" +
-                        "assoc UA:ua1 OA:oa1 test [read, assign to, deassign from]";
-        Graph graph = Graph.deserialize(new MemGraph(), str);
-        Collection<Node> nodes = graph.getNodes();
-        for (Node node : nodes) {
-            switch (node.getName()) {
-                case "u1":
-                    assertEquals(U, node.getType());
-                    assertEquals("v1", node.getProperties().get("k1"));
-                    assertEquals("v2", node.getProperties().get("k2"));
-                    Set<Long> parents = graph.getParents(node.getID());
-                    assertEquals(1, parents.size());
-                    long p = parents.iterator().next();
-                    Node pN = graph.getNode(p);
-                    assertEquals("ua1", pN.getName());
-                    break;
-                case "ua1":
-                    assertEquals(UA, node.getType());
-                    parents = graph.getParents(node.getID());
-                    assertEquals(1, parents.size());
-                    p = parents.iterator().next();
-                    pN = graph.getNode(p);
-                    assertEquals("pc1", pN.getName());
-                    Map<Long, Set<String>> sourceAssociations = graph.getSourceAssociations(node.getID());
-                    assertEquals(1, sourceAssociations.size());
-                    Long tID = sourceAssociations.keySet().iterator().next();
-                    Node tN = graph.getNode(tID);
-                    assertEquals("oa1 test", tN.getName());
-                    assertEquals(new HashSet<>(Arrays.asList("read", "assign to", "deassign from")), sourceAssociations.get(tID));
-                    break;
-                case "o1":
-                    assertEquals(O, node.getType());
-                    parents = graph.getParents(node.getID());
-                    assertEquals(1, parents.size());
-                    p = parents.iterator().next();
-                    pN = graph.getNode(p);
-                    assertEquals("oa1 test", pN.getName());
-                    break;
-                case "oa1 test":
-                    assertEquals(OA, node.getType());
-                    parents = graph.getParents(node.getID());
-                    assertEquals(1, parents.size());
-                    p = parents.iterator().next();
-                    pN = graph.getNode(p);
-                    assertEquals("pc1", pN.getName());
-                    break;
-                case "pc1":
-                    assertEquals(PC, node.getType());
-                    parents = graph.getParents(node.getID());
-                    assertEquals(0, parents.size());
-                    break;
-                default:
-                    fail(node.toString());
-            }
-        }
+        assertTrue(deGraph.getNodes().containsAll(Arrays.asList(
+                new Node().id(u1ID),
+                new Node().id(o1ID),
+                new Node().id(ua1ID),
+                new Node().id(oa1ID),
+                new Node().id(pc1ID)
+        )));
+
+        assertTrue(deGraph.getChildren(pc1ID).containsAll(Arrays.asList(ua1ID, oa1ID)));
+        assertTrue(deGraph.getChildren(oa1ID).contains(o1ID));
+        assertTrue(deGraph.getChildren(ua1ID).contains(u1ID));
+
+        assertTrue(deGraph.getSourceAssociations(ua1ID).containsKey(oa1ID));
+        assertTrue(deGraph.getSourceAssociations(ua1ID).get(oa1ID).getOperations().containsAll(Arrays.asList("read", "write")));
     }
 }
