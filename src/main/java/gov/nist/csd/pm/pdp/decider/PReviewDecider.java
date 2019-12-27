@@ -2,6 +2,7 @@ package gov.nist.csd.pm.pdp.decider;
 
 import gov.nist.csd.pm.exceptions.PMException;
 import gov.nist.csd.pm.operations.OperationSet;
+import gov.nist.csd.pm.operations.Operations;
 import gov.nist.csd.pm.pip.graph.Graph;
 import gov.nist.csd.pm.pip.graph.dag.propagator.Propagator;
 import gov.nist.csd.pm.pip.graph.dag.searcher.BreadthFirstSearcher;
@@ -200,6 +201,14 @@ public class PReviewDecider implements Decider {
         if (inter.contains(ALL_OPERATIONS)) {
             inter.clear();
             inter.add(ALL_OPERATIONS);
+        } else {
+            // filter out any resource/admin operations
+            Node targetNode = graph.getNode(targetCtx.getTargetID());
+            if (targetNode.getType() == OA || targetNode.getType() == UA) {
+                inter.removeIf(Operations::isResource);
+            } else if (targetNode.getType() == O || targetNode.getType() == U) {
+                inter.removeIf(Operations::isAdmin);
+            }
         }
 
         return inter;
@@ -257,7 +266,6 @@ public class PReviewDecider implements Decider {
         Map<Prohibition, Set<Long>> reachedProhibitedTargets = new HashMap<>();
 
         Visitor visitor = node -> {
-            System.out.println("visiting " + node.getName());
             // add this node to reached prohibited targets if it has any prohibitions
             // ignore the current node if it is the target of the traversal
             if(prohibitedTargets.containsKey(node.getID()) && node.getID() != targetID) {
@@ -292,7 +300,6 @@ public class PReviewDecider implements Decider {
         };
 
         Propagator propagator = (parent, child) -> {
-            System.out.println("propagating " + parent.getName() + " to " + child.getName());
             Map<Long, AssociationContext> parentCtx = visitedNodes.get(parent.getID());
             Map<Long, AssociationContext> nodeCtx = visitedNodes.getOrDefault(child.getID(), new HashMap<>());
             for (Long id : parentCtx.keySet()) {
@@ -301,8 +308,8 @@ public class PReviewDecider implements Decider {
 
                 if (child.getType() == OA || child.getType() == UA) {
                     // propagate recursive and non-recursive admin ops
-                    ops.addRecursive(parentAssocCtx.getRecursive().getAdminOps());
-                    ops.addNonRecursive(parentAssocCtx.getNonRecursive().getAdminOps());
+                    ops.addRecursive(parentAssocCtx.getRecursive());
+                    // ops.addNonRecursive(parentAssocCtx.getNonRecursive().getAdminOps());
                     // recursive resource ops;
                     ops.addRecursive(parentAssocCtx.getRecursive().getResourceOps());
                 } else {
@@ -310,7 +317,6 @@ public class PReviewDecider implements Decider {
                     ops.addNonRecursive(parentAssocCtx.getNonRecursive().getResourceOps());
                 }
 
-                System.out.println("propagating " + ops);
                 nodeCtx.put(id, ops);
             }
             visitedNodes.put(child.getID(), nodeCtx);
@@ -319,7 +325,7 @@ public class PReviewDecider implements Decider {
         DepthFirstSearcher searcher = new DepthFirstSearcher(graph);
         searcher.traverse(graph.getNode(targetID), propagator, visitor);
 
-        return new TargetContext(visitedNodes.get(targetID), reachedProhibitedTargets);
+        return new TargetContext(targetID, visitedNodes.get(targetID), reachedProhibitedTargets);
     }
 
     /**
@@ -460,63 +466,69 @@ public class PReviewDecider implements Decider {
         }
     }
 
-    private class TargetContext {
+    private static class TargetContext {
+        long targetID;
         Map<Long, AssociationContext> pcSet;
         Map<Prohibition, Set<Long>> reachedProhibitedTargets;
 
-        public TargetContext(Map<Long, AssociationContext> pcSet, Map<Prohibition, Set<Long>> reachedProhiitedTargets) {
+        TargetContext(long targetID, Map<Long, AssociationContext> pcSet, Map<Prohibition, Set<Long>> reachedProhiitedTargets) {
+            this.targetID = targetID;
             this.pcSet = pcSet;
             this.reachedProhibitedTargets = reachedProhiitedTargets;
         }
 
-        public Map<Long, AssociationContext> getPcSet() {
+        long getTargetID() {
+            return targetID;
+        }
+
+        Map<Long, AssociationContext> getPcSet() {
             return pcSet;
         }
 
-        public Map<Prohibition, Set<Long>> getReachedProhibitedTargets() {
+        Map<Prohibition, Set<Long>> getReachedProhibitedTargets() {
             return reachedProhibitedTargets;
         }
     }
 
-    private class AssociationContext {
+    private static class AssociationContext {
         private OperationSet recursive;
         private OperationSet nonRecursive;
 
-        public AssociationContext() {
+        AssociationContext() {
             recursive = new OperationSet();
             nonRecursive = new OperationSet();
         }
 
-        public AssociationContext(OperationSet recursive, OperationSet nonRecursive) {
+        AssociationContext(OperationSet recursive, OperationSet nonRecursive) {
             this.recursive = recursive;
             this.nonRecursive = nonRecursive;
         }
 
-        public OperationSet getRecursive() {
+        OperationSet getRecursive() {
             return recursive;
         }
 
-        public void setRecursive(OperationSet recursive) {
+        void setRecursive(OperationSet recursive) {
             this.recursive = recursive;
         }
 
-        public void addRecursive(OperationSet recursive) {
+        void addRecursive(OperationSet recursive) {
             this.recursive.addAll(recursive);
         }
 
-        public OperationSet getNonRecursive() {
+        OperationSet getNonRecursive() {
             return nonRecursive;
         }
 
-        public void setNonRecursive(OperationSet nonRecursive) {
+        void setNonRecursive(OperationSet nonRecursive) {
             this.nonRecursive = nonRecursive;
         }
 
-        public void addNonRecursive(OperationSet nonRecursive) {
+        void addNonRecursive(OperationSet nonRecursive) {
             this.nonRecursive.addAll(nonRecursive);
         }
 
-        public OperationSet getAll() {
+        OperationSet getAll() {
             OperationSet recSet = this.recursive;
             OperationSet nonRecSet = this.nonRecursive;
             recSet.addAll(nonRecSet);

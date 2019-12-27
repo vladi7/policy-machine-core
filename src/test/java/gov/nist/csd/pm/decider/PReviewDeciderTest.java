@@ -79,7 +79,7 @@ class PReviewDeciderTest {
             nodeIDs.add(node.getID());
         }
         PReviewDecider decider = new PReviewDecider(graph);
-        assertEquals(new HashSet<>(Arrays.asList(o1.getID(), o2.getID(), o3.getID(), oa1.getID())),
+        assertEquals(new HashSet<>(Arrays.asList(o1.getID(), o2.getID(), o3.getID())),
                 new HashSet<>(decider.filter(u1.getID(), 0, nodeIDs, "read"))
         );
     }
@@ -142,7 +142,7 @@ class PReviewDeciderTest {
         assertTrue(accessibleNodes.containsKey(o2.getID()));
         assertTrue(accessibleNodes.containsKey(o3.getID()));
 
-        assertEquals(new OperationSet("read", "write"), accessibleNodes.get(oa1.getID()));
+        assertEquals(new OperationSet(), accessibleNodes.get(oa1.getID()));
         assertEquals(new OperationSet("read", "write"), accessibleNodes.get(o1.getID()));
         assertEquals(new OperationSet("read", "write"), accessibleNodes.get(o2.getID()));
         assertEquals(new OperationSet("read", "write"), accessibleNodes.get(o3.getID()));
@@ -781,11 +781,11 @@ class PReviewDeciderTest {
         graph.assign(oa1.getID(), pc1.getID());
 
         graph.associate(ua1.getID(), oa1.getID(), new OperationSet("read"), true);
-        graph.associate(ua2.getID(), oa1.getID(), new OperationSet("write"), true);
+        graph.associate(ua2.getID(), oa1.getID(), new OperationSet("assign"), true);
 
         Decider decider = new PReviewDecider(graph);
         Set<String> permissions = decider.list(ua1.getID(), 0, oa1.getID());
-        assertTrue(permissions.containsAll(Arrays.asList("read", "write")));
+        assertEquals(new OperationSet("assign"), permissions);
     }
 
     @Test
@@ -811,13 +811,61 @@ class PReviewDeciderTest {
         graph.assign(o2.getID(), oa2.getID());
 
         graph.associate(ua1.getID(), oa2.getID(), new OperationSet("assign", "assign to", "read", "write"), false);
-        graph.associate(ua2.getID(), oa2.getID(), new OperationSet("deassign", "deassign from", "read", "test"), true);
+        graph.associate(ua2.getID(), oa2.getID(), new OperationSet("deassign", "deassign from", "read"), true);
 
         PReviewDecider decider = new PReviewDecider(graph);
-        Set<String> list = decider.list(u1.getID(), 0, o1.getID());
-        System.out.println(list);
-        /*assertTrue(decider.list(u1.getID(), 0, o1.getID()).isEmpty());
-        assertTrue(decider.list(u1.getID(), 0, o2.getID()).containsAll(new OperationSet("read", "write")));
-        assertTrue(decider.list(u1.getID(), 0, oa2.getID()).containsAll(new OperationSet("assign", "assign to")));*/
+
+        assertEquals(new OperationSet("read"), decider.list(u1.getID(), 0, o1.getID()));
+        assertEquals(new OperationSet("read", "write"), decider.list(u1.getID(), 0, o2.getID()));
+        assertEquals(new OperationSet("assign", "assign to", "deassign", "deassign from"), decider.list(u1.getID(), 0, oa2.getID()));
+        assertEquals(new OperationSet("deassign", "deassign from"),
+                decider.list(u1.getID(), 0, oa1.getID()));
+    }
+
+    @Test
+    void testResourceOps() throws PMException {
+        Graph graph = new MemGraph();
+
+        Node u1 = graph.createNode(1, "u1", U, null);
+        Node ua1 = graph.createNode(2, "ua1", UA, null);
+
+        Node oa1 = graph.createNode(3, "oa1", OA, null);
+        Node o1 = graph.createNode(5, "o1", O, null);
+
+        Node pc1 = graph.createNode(7, "pc1", PC, null);
+
+        graph.assign(u1.getID(), ua1.getID());
+        graph.assign(o1.getID(), oa1.getID());
+        graph.assign(oa1.getID(), pc1.getID());
+
+        graph.associate(ua1.getID(), oa1.getID(), new OperationSet("assign", "assign to", "read", "write"), false);
+
+        PReviewDecider decider = new PReviewDecider(graph);
+
+        assertEquals(new OperationSet("assign", "assign to"), decider.list(u1.getID(), 0, oa1.getID()));
+    }
+
+    @Test
+    void testResourceOps2() throws PMException {
+        Graph graph = new MemGraph();
+
+        Node u1 = graph.createNode(1, "u1", U, null);
+        Node ua1 = graph.createNode(2, "ua1", UA, null);
+
+        Node oa1 = graph.createNode(3, "oa1", OA, null);
+        Node oa2 = graph.createNode(5, "oa2", OA, null);
+
+        Node pc1 = graph.createNode(7, "pc1", PC, null);
+
+        graph.assign(u1.getID(), ua1.getID());
+        graph.assign(oa2.getID(), oa1.getID());
+        graph.assign(oa1.getID(), pc1.getID());
+
+        graph.associate(ua1.getID(), oa1.getID(), new OperationSet("assign", "assign to", "read", "write"), false);
+        graph.associate(ua1.getID(), oa2.getID(), new OperationSet("deassign", "deassign from", "read", "write"), false);
+
+        PReviewDecider decider = new PReviewDecider(graph);
+
+        assertEquals(new OperationSet("deassign", "deassign from"), decider.list(u1.getID(), 0, oa2.getID()));
     }
 }

@@ -34,6 +34,9 @@ public class PReviewAuditor implements Auditor {
         List<EdgePath> userPaths = dfs(userNode);
         List<EdgePath> targetPaths = dfs(targetNode);
 
+        System.out.println(userPaths);
+        System.out.println(targetPaths);
+
         Map<String, PolicyClass> resolvedPaths = resolvePaths(userPaths, targetPaths, targetID);
         Set<String> perms = resolvePermissions(resolvedPaths);
 
@@ -387,7 +390,7 @@ public class PReviewAuditor implements Auditor {
 
             public String toString() {
                 return source.getName() + "(" + source.getType() + ")" + "-->" +
-                        (association.getOperations() != null ? association.getOperations() + "-->" : "") +
+                        (association != null ? association.getOperations() + "-->" : "") +
                         target.getName() + "(" + target.getType() + ")";
             }
         }
