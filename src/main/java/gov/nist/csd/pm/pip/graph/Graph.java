@@ -323,7 +323,7 @@ public interface Graph {
                     String opsStr = line.substring(line.indexOf("[")+1, line.lastIndexOf("]"));
                     String[] ops = opsStr.split("(,\\s+)");
 
-                    String recStr = line.substring(line.lastIndexOf(" "));
+                    String recStr = line.substring(line.lastIndexOf(" ")).trim();
                     boolean rec;
                     if (recStr.equalsIgnoreCase("true") ||
                             recStr.equalsIgnoreCase("false")) {
