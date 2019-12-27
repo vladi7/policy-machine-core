@@ -323,10 +323,16 @@ public interface Graph {
                     String opsStr = line.substring(line.indexOf("[")+1, line.lastIndexOf("]"));
                     String[] ops = opsStr.split("(,\\s+)");
 
-                    boolean recursive = Boolean.parseBoolean(
-                            line.substring(line.lastIndexOf(" ")));
+                    String recStr = line.substring(line.lastIndexOf(" "));
+                    boolean rec;
+                    if (recStr.equalsIgnoreCase("true") ||
+                            recStr.equalsIgnoreCase("false")) {
+                        rec = Boolean.parseBoolean(recStr);
+                    } else {
+                        rec = true;
+                    }
 
-                    graph.associate(uaID, targetID, new OperationSet(ops), recursive);
+                    graph.associate(uaID, targetID, new OperationSet(ops), rec);
                     break;
             }
         }
