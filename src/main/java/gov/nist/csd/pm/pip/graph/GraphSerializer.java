@@ -106,7 +106,7 @@ public class GraphSerializer {
             Assignment assignment = assignments.get(0);
             String source = assignment.getSource();
             String target = assignment.getTarget();
-
+            //System.out.println(source +" "+ target);
             if (graph.exists(target)) {
                 // create the source if it does not exist
                 if (!graph.exists(source)) {

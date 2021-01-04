@@ -10,7 +10,6 @@ import gov.nist.csd.pm.pip.graph.model.relationships.Relationship;
 import org.jgrapht.DirectedGraph;
 import org.jgrapht.experimental.dag.DirectedAcyclicGraph;
 import org.jgrapht.graph.DirectedMultigraph;
-
 import java.util.*;
 
 import static gov.nist.csd.pm.pip.graph.model.nodes.NodeType.*;
@@ -410,5 +409,6 @@ public class MemGraph implements Graph {
             }
         }
         return assocs;
-    }    
+    }
+    
 }

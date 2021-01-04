@@ -10,7 +10,9 @@ public class Function {
         this.name = name;
         this.args = args;
     }
-
+    public Function() {
+    
+    }
     public String getName() {
         return name;
     }

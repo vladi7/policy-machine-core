@@ -9,7 +9,6 @@ public class FunctionAction extends Action {
     public FunctionAction(Function function) {
         this.function = function;
     }
-    
     public FunctionAction() {
         this.function = function;
     }
