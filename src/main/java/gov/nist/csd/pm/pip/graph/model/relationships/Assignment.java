@@ -61,4 +61,8 @@ public class Assignment extends Relationship implements Serializable {
     public int hashCode() {
         return Objects.hash(source, target);
     }
+    @Override
+    public String toString() {
+        return "";
+    }
 }

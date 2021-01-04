@@ -159,8 +159,8 @@ public class EPP {
         // get the current user node
         Node userNode = pap.getGraphPAP().getNode(user);
 
-        if (checkAnyUser(userNode, matchSubject.getAnyUser())) {
-            return true;
+        if (matchSubject.getAnyUser() != null) {
+            return checkAnyUser(userNode, matchSubject.getAnyUser());
         }
 
         if(matchSubject.getUser() != null && matchSubject.getUser().equals(userNode.getName())) {
@@ -192,10 +192,10 @@ public class EPP {
             if (anyUserNode.getType() != UA) {
                 continue;
             }
-
+            
             Set<String> nodes = new HashSet<>();
             Visitor visitor = node -> {
-                if (node.getName().equals(userNode.getName())) {
+                if (node.getName().equals(anyUserNode.getName())) { //the change
                     nodes.add(node.getName());
                 }
             };

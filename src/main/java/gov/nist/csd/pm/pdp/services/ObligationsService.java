@@ -63,9 +63,9 @@ public class ObligationsService extends Service implements Obligations {
         }
 
         // check that the user can reset the graph
-        if (!hasPermissions(userCtx, superPolicy.getSuperPolicyClassRep().getName(), RESET)) {
-            throw new PMAuthorizationException("unauthorized permissions to reset obligations");
-        }
+//        if (!hasPermissions(userCtx, superPolicy.getSuperPolicyClassRep().getName(), RESET)) {
+//            throw new PMAuthorizationException("unauthorized permissions to reset obligations");
+//        }
 
         List<Obligation> obligations = getAll();
         Set<String> labels = new HashSet<>();

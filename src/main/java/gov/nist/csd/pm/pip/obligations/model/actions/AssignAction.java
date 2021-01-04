@@ -33,7 +33,9 @@ public class AssignAction extends Action {
             this.what = what;
             this.where = where;
         }
-
+        private Assignment() {
+           
+        }
         public EvrNode getWhat() {
             return what;
         }

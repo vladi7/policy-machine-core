@@ -76,4 +76,8 @@ public class Association extends Relationship implements Serializable {
     public int hashCode() {
         return Objects.hash(source, target, operations);
     }
+    @Override
+    public String toString() {
+        return operations.toString();
+    }
 }

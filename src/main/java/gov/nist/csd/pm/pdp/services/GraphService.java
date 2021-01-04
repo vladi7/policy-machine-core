@@ -684,9 +684,9 @@ public class GraphService extends Service implements Graph {
         }
 
         // check that the user can reset the graph
-        if (!hasPermissions(userCtx, superPolicy.getSuperPolicyClassRep().getName(), RESET)) {
-            throw new PMAuthorizationException("unauthorized permissions to reset the graph");
-        }
+//        if (!hasPermissions(userCtx, superPolicy.getSuperPolicyClassRep().getName(), RESET)) {
+//            throw new PMAuthorizationException("unauthorized permissions to reset the graph");
+//        }
 
         Collection<Node> nodes = getGraphPAP().getNodes();
         Set<String> names = new HashSet<>();

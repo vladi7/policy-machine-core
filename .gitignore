@@ -1,3 +1,7 @@
 .idea
 policy-machine-core.iml
 /target
+Policy Machine Diagram.ucls
+/.settings/
+/.project
+/.classpath

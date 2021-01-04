@@ -23,7 +23,7 @@ public class MemGraph implements Graph {
 
     private static final String NODE_NOT_FOUND_MSG = "node %s does not exist in the graph";
 
-    private DirectedGraph<String, Relationship> graph;
+    public DirectedGraph<String, Relationship> graph;
     private HashSet<String>                     pcs;
     private HashMap<String, Node>               nodes;
 
@@ -410,5 +410,5 @@ public class MemGraph implements Graph {
             }
         }
         return assocs;
-    }
+    }    
 }

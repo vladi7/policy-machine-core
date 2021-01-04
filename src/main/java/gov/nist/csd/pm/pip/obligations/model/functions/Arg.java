@@ -7,7 +7,8 @@ public class Arg {
     public Arg(String value) {
         this.value = value;
     }
-
+    public Arg() {
+    }
     public Arg(Function function) {
         this.function = function;
     }
