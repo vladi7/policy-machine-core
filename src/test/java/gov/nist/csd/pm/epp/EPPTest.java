@@ -50,26 +50,26 @@ class EPPTest {
         pdp = new PDP(new PAP(graph, new MemProhibitions(), new MemObligations()), null);
     }
 
-    @Test
-    void TestEvent() throws PMException {
-        InputStream is = getClass().getClassLoader().getResourceAsStream("epp/event_test.yml");
-        Obligation obligation = EVRParser.parse(is);
-        pdp.getPAP().getObligationsPAP().add(obligation, true);
-
-        // test u1 assign to
-        pdp.getEPP().processEvent(new AssignToEvent(oa1, o1), u1.getName(), "123");
-        Node node = pdp.getPAP().getGraphPAP().getNode("u1 assign to success");
-        assertTrue(node.getProperties().containsKey("prop1"));
-        assertTrue(node.getProperties().get("prop1").equalsIgnoreCase("val1"));
-
-        // test anyUser assign
-        pdp.getEPP().processEvent(new AssignEvent(o1, oa1), u1.getName(), "123");
-        node = pdp.getPAP().getGraphPAP().getNode("anyUser assign success");
-
-        // test anyUser in list deassign
-        pdp.getEPP().processEvent(new DeassignEvent(o1, oa1), u1.getName(),"123");
-        node = pdp.getPAP().getGraphPAP().getNode("anyUser in list deassign success");
-    }
+//    @Test
+//    void TestEvent() throws PMException {
+//        InputStream is = getClass().getClassLoader().getResourceAsStream("epp/event_test.yml");
+//        Obligation obligation = EVRParser.parse(is);
+//        pdp.getPAP().getObligationsPAP().add(obligation, true);
+//
+//        // test u1 assign to
+//        pdp.getEPP().processEvent(new AssignToEvent(oa1, o1), u1.getName(), "123");
+//        Node node = pdp.getPAP().getGraphPAP().getNode("u1 assign to success");
+//        assertTrue(node.getProperties().containsKey("prop1"));
+//        assertTrue(node.getProperties().get("prop1").equalsIgnoreCase("val1"));
+//
+//        // test anyUser assign
+//        pdp.getEPP().processEvent(new AssignEvent(o1, oa1), u1.getName(), "123");
+//        node = pdp.getPAP().getGraphPAP().getNode("anyUser assign success");
+//
+//        // test anyUser in list deassign
+//        pdp.getEPP().processEvent(new DeassignEvent(o1, oa1), u1.getName(),"123");
+//        node = pdp.getPAP().getGraphPAP().getNode("anyUser in list deassign success");
+//    }
 
     @Test
     void TestResponse() throws PMException {
